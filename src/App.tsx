@@ -1,12 +1,16 @@
+import { useMemo } from 'react';
+
+import { World } from '@/engine/World';
 import { Canvas } from '@/components/Canvas';
-import { CanvasRenderer } from './components/CanvasRenderer';
+import { CanvasRenderer } from '@/components/CanvasRenderer';
 import './index.scss';
-import { zoomInCubeTestRenderer } from './renderers/zoomInCubeTest';
 
 function App() {
+  const world = useMemo(() => new World(), []);
+
   return (
     <Canvas>
-      <CanvasRenderer renderer={zoomInCubeTestRenderer} />
+      <CanvasRenderer world={world} />
     </Canvas>
   );
 }

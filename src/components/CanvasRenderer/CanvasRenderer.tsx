@@ -1,22 +1,22 @@
 import { useEffect, FC } from 'react';
 
-import { RendererFn } from '@/types/renderer';
+import { World } from '@/engine/World';
 import { useCanvasContext } from '@/contexts/CanvasContext';
 
 export interface CanvasRendererProps {
-  renderer: RendererFn;
+  world: World;
 }
 
-export const CanvasRenderer: FC<CanvasRendererProps> = ({ renderer }) => {
+export const CanvasRenderer: FC<CanvasRendererProps> = ({ world }) => {
   const { canvasHeight, canvasWidth, getRenderingContext } = useCanvasContext();
   useEffect(() => {
-    const context = getRenderingContext();
+    const renderingContext = getRenderingContext();
 
-    if (context) {
-      const rendererCancel = renderer(canvasHeight, canvasWidth, context);
+    if (renderingContext) {
+      world.startRenderLoop(canvasHeight, canvasWidth, renderingContext);
 
       return () => {
-        rendererCancel();
+        world.cancelRenderLoop();
       };
     }
   }, [canvasHeight, canvasWidth, getRenderingContext]);
