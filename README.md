@@ -18,4 +18,4 @@ All "physics" is implemented using some simple 2D vector maths, no libraries use
 
 Simply clone the repo, run `yarn`/`yarn install` followed by `yarn dev` to start up the
 dev-server on port 3000.
-Run `yarn build` to run in production mode.
+Run `yarn build` to build for production.
