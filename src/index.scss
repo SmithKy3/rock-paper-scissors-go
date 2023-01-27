@@ -3,6 +3,8 @@
   padding: 0;
   line-height: 1;
   box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
+  color: var(--secondaryColor);
 }
 
 html,
@@ -11,10 +13,27 @@ body {
   height: 100vh;
 }
 
+body:not(.dark) {
+  --primaryColor: aliceblue;
+  --secondaryColor: darkslategray;
+}
+
+body.dark {
+  --primaryColor: dimgray;
+  --secondaryColor: ivory;
+}
+
 #root {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
+}
+
+button {
+  border: none;
+  outline: none;
+  background: transparent;
+  cursor: pointer;
 }

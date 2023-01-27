@@ -4,9 +4,10 @@ import { Vector2D, WallType } from '@/types/engine';
 import { getRandomInteger } from '@/util/number';
 import {
   doAdditionInPlace,
-  doNegationInPlace,
   doReflectionInPlace,
   doScalarMultiplication,
+  getReflection,
+  getUnitVector,
 } from '@/util/vector2d';
 
 export enum EntityType {
@@ -16,15 +17,10 @@ export enum EntityType {
 }
 
 const entityTypeToEmoji: Record<EntityType, string> = {
-  [EntityType.Rock]: '🪨',
-  [EntityType.Paper]: '📝',
-  [EntityType.Scissors]: '✂️',
+  [EntityType.Rock]: String.fromCodePoint(0x1faa8),
+  [EntityType.Paper]: String.fromCodePoint(0x1f4c3),
+  [EntityType.Scissors]: String.fromCodePoint(0x2702),
 };
-
-const getRandomEntityType = (): EntityType =>
-  (Object.values(EntityType) as Array<EntityType>)[getRandomInteger(0, 2)];
-
-const velocityCoefficient = 0.01;
 
 const wallTypeToNormal: Record<WallType, Vector2D> = {
   [WallType.Bottom]: { x: 0, y: 1 },
@@ -33,36 +29,74 @@ const wallTypeToNormal: Record<WallType, Vector2D> = {
   [WallType.Top]: { x: 0, y: -1 },
 };
 
+// Computers are fast. We can either work with extremely small numbers
+// when describing velocity of entities or we can use some coeffecient
+// (like below) to "slow down" an entity when calculating position changes.
+const VELOCITY_COEFFICIENT = 0.01;
+
+const getRandomEntityType = (): EntityType =>
+  (Object.values(EntityType) as Array<EntityType>)[getRandomInteger(0, 2)];
+
+export const getRandomEntity = (): Entity =>
+  new Entity(
+    {
+      x: getRandomInteger(-50, 50),
+      y: getRandomInteger(-50, 50),
+    },
+    {
+      x: getRandomInteger(-20, 20),
+      y: getRandomInteger(-20, 20),
+    }
+  );
+
 export class Entity {
-  private id: string;
+  private center: Vector2D;
   private framesUntilCanCollide = 300;
   private type: EntityType;
+  private velocity: Vector2D;
+
+  public id: string;
   public radius = 12;
 
   constructor(
-    public center: Vector2D,
-    public velocity: Vector2D,
+    initialCenter: Vector2D,
+    initialVelocity: Vector2D,
     initialType?: EntityType
   ) {
+    this.center = initialCenter;
     this.id = nanoid();
     this.type = initialType || getRandomEntityType();
+    this.velocity = initialVelocity;
   }
 
-  private handleCollisionWithEntity(collisionEntityType: EntityType): void {
-    this.velocity = doNegationInPlace(this.velocity);
-    switch (collisionEntityType) {
+  private handleCollisionWithEntity(collisionEntity: Entity): void {
+    let thisEntityWins: boolean;
+    switch (collisionEntity.type) {
       case EntityType.Rock:
-        this.type =
-          this.type === EntityType.Paper ? this.type : collisionEntityType;
+        thisEntityWins = this.type === EntityType.Paper;
         break;
       case EntityType.Paper:
-        this.type =
-          this.type === EntityType.Scissors ? this.type : collisionEntityType;
+        thisEntityWins = this.type === EntityType.Scissors;
         break;
       default:
-        this.type =
-          this.type === EntityType.Rock ? this.type : collisionEntityType;
+        thisEntityWins = this.type === EntityType.Rock;
     }
+    if (thisEntityWins) {
+      collisionEntity.type = this.type;
+    } else {
+      this.type = collisionEntity.type;
+    }
+
+    const thisNewVelocity = getReflection(
+      this.velocity,
+      getUnitVector(collisionEntity.velocity)
+    );
+    const collisionEntityNewVelocity = getReflection(
+      collisionEntity.velocity,
+      getUnitVector(this.velocity)
+    );
+    this.velocity = thisNewVelocity;
+    collisionEntity.velocity = collisionEntityNewVelocity;
   }
 
   private handleCollisionWithWall(collisionWallType: WallType): void {
@@ -81,17 +115,19 @@ export class Entity {
   }
 
   public checkForEntityCollisions(allEntities: Array<Entity>): void {
-    allEntities.forEach((entity) => {
-      if (entity.id === this.id) {
+    allEntities.forEach((otherEntity) => {
+      if (otherEntity.id === this.id) {
         return;
       }
 
       if (
         this.framesUntilCanCollide === 0 &&
-        this.checkForEntityCollision(entity)
+        otherEntity.framesUntilCanCollide === 0 &&
+        this.checkForEntityCollision(otherEntity)
       ) {
         this.framesUntilCanCollide = 60;
-        this.handleCollisionWithEntity(entity.type);
+        otherEntity.framesUntilCanCollide = 60;
+        this.handleCollisionWithEntity(otherEntity);
       }
     });
   }
@@ -124,32 +160,27 @@ export class Entity {
     renderingContext: CanvasRenderingContext2D,
     timeDelta: number
   ): void {
+    if (
+      Math.abs(this.center.x) > canvasWidth / 2 ||
+      Math.abs(this.center.y) > canvasHeight / 2
+    ) {
+      // debugger;
+    }
     // Translate the entity using it's velocity and the time that has passed
     // since the last frame was rendered.
     doAdditionInPlace(
       this.center,
-      doScalarMultiplication(this.velocity, timeDelta * velocityCoefficient)
-    );
-    // The standard HTML5 canvas has it's origin set to the top-left corner.
-    // We treat everything as if the origin is in the centre. Something like
-    // standard graph paper. We need to account for this when drawing entities
-    // on the canvas.
-    const wonkyCentre = doAdditionInPlace(
-      {
-        x: canvasWidth / 2,
-        y: canvasHeight / 2,
-      },
-      this.center
+      doScalarMultiplication(this.velocity, timeDelta * VELOCITY_COEFFICIENT)
     );
 
-    renderingContext.font = `${this.radius * 2}px serif`;
+    renderingContext.font = `${this.radius * 2}px Noto Color Emoji`;
     renderingContext.textAlign = 'center';
     renderingContext.textBaseline = 'middle';
     renderingContext.globalAlpha = this.framesUntilCanCollide > 0 ? 0.5 : 1;
     renderingContext.fillText(
       entityTypeToEmoji[this.type],
-      wonkyCentre.x,
-      wonkyCentre.y,
+      this.center.x,
+      this.center.y,
       this.radius * 2
     );
     if (this.framesUntilCanCollide > 0) {

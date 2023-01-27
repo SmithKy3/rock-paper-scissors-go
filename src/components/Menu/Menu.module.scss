@@ -1,0 +1,46 @@
+.menuOverlay {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  background: linear-gradient(135deg var(--secondaryColor), rgba(0, 0, 0, 0.3));
+  backdrop-filter: blur(20px);
+  opacity: 0;
+  z-index: 5;
+  transition: opacity 0.5s;
+
+  &Open {
+    visibility: visible;
+    opacity: 0.9;
+  }
+}
+
+.menu {
+  width: 35vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  right: -100%;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 24px;
+  padding: 24px;
+  background-color: var(--primaryColor);
+  border-left: 5px solid var(--secondaryColor);
+  transition: right 0.5s;
+  z-index: 10;
+
+  &Open {
+    right: 0;
+  }
+}
+
+.menuCloseButton {
+  align-self: flex-start;
+  font-family: 'Noto Color Emoji';
+  font-size: 24px;
+}

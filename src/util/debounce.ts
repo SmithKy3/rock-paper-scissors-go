@@ -18,7 +18,10 @@ export function debounce<F extends Callback>(
 ): DebouncedCallback<F> {
   let timeoutID: NodeJS.Timeout | null = null;
 
-  return function (this: ThisParameterType<F>, ...args: Parameters<F>) {
+  return function debouncedCallback(
+    this: ThisParameterType<F>,
+    ...args: Parameters<F>
+  ) {
     const context = this;
     if (!timeoutID) {
       fn.apply(context, args);

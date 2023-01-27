@@ -1,37 +1,35 @@
-import { createContext, useContext, useMemo, FC, ReactNode } from 'react';
+import React from 'react';
 
 interface CanvasContextValue {
-  canvasHeight: number;
-  canvasWidth: number;
   getRenderingContext: () => CanvasRenderingContext2D | null;
 }
 
-interface CanvasContextProviderProps extends CanvasContextValue {
-  children?: ReactNode;
+interface CanvasContextProviderProps {
+  canvasRef: React.RefObject<HTMLCanvasElement>;
+  children?: React.ReactNode;
 }
 
 const canvasContextDefaultValue: CanvasContextValue = {
-  canvasWidth: 0,
-  canvasHeight: 0,
   getRenderingContext: () => null,
 };
-const canvasContext = createContext<CanvasContextValue>(
+const canvasContext = React.createContext<CanvasContextValue>(
   canvasContextDefaultValue
 );
 
-export const CanvasContextProvider: FC<CanvasContextProviderProps> = ({
-  canvasHeight,
-  canvasWidth,
-  getRenderingContext,
+export const CanvasContextProvider: React.FC<CanvasContextProviderProps> = ({
+  canvasRef,
   children,
 }) => {
-  const contextValue = useMemo<CanvasContextValue>(
+  const getRenderingContext = React.useCallback(
+    () => canvasRef.current?.getContext('2d') ?? null,
+    [canvasRef]
+  );
+
+  const contextValue = React.useMemo<CanvasContextValue>(
     () => ({
-      canvasHeight,
-      canvasWidth,
       getRenderingContext,
     }),
-    [canvasHeight, canvasWidth, getRenderingContext]
+    [getRenderingContext]
   );
 
   return (
@@ -41,4 +39,4 @@ export const CanvasContextProvider: FC<CanvasContextProviderProps> = ({
   );
 };
 
-export const useCanvasContext = () => useContext(canvasContext);
+export const useCanvasContext = () => React.useContext(canvasContext);

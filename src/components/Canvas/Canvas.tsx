@@ -1,38 +1,27 @@
-import { useCallback, useRef, Fragment, FC, ReactNode } from 'react';
+import React from 'react';
 
 import { combineClassNames } from '@/util/components';
 import { useClientDimensions } from '@/hooks/useClientDimensions';
-import { CanvasContextProvider } from '@/contexts/CanvasContext';
+
 import styles from './Canvas.module.scss';
 
 export interface CanvasProps {
-  children?: ReactNode;
   className?: string;
 }
 
-export const Canvas: FC<CanvasProps> = ({ children, className }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { clientHeight, clientWidth } = useClientDimensions(canvasRef);
-  const getRenderingContext = useCallback(
-    () => canvasRef.current?.getContext('2d') ?? null,
-    []
-  );
+export const Canvas = React.forwardRef<HTMLCanvasElement, CanvasProps>(
+  ({ className }, ref) => {
+    const { clientHeight, clientWidth } = useClientDimensions(
+      ref as React.RefObject<HTMLCanvasElement>
+    );
 
-  return (
-    <Fragment>
+    return (
       <canvas
-        ref={canvasRef}
+        ref={ref}
         className={combineClassNames(className, styles.canvas)}
         height={clientHeight}
         width={clientWidth}
       />
-      <CanvasContextProvider
-        canvasHeight={clientHeight}
-        canvasWidth={clientWidth}
-        getRenderingContext={getRenderingContext}
-      >
-        {children}
-      </CanvasContextProvider>
-    </Fragment>
-  );
-};
+    );
+  }
+);

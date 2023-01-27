@@ -1,0 +1,22 @@
+.appContainer {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 100vw;
+  grid-template-rows: max-content auto;
+  grid-template-areas: 'header' 'canvas';
+}
+
+.canvasContainer {
+  grid-area: canvas;
+  width: 100%;
+  height: 100%;
+  border: 5px solid var(--secondaryColor);
+}
+
+.header {
+  grid-area: header;
+  border-color: var(--secondaryColor);
+  border-style: solid;
+  border-width: 5px 5px 0 5px;
+}

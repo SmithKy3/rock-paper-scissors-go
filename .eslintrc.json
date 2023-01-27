@@ -1,0 +1,105 @@
+{
+  "extends": [
+    "react-app",
+    "react-app/jest",
+    "airbnb",
+    "airbnb/hooks",
+    "airbnb-typescript",
+    "prettier"
+  ],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "plugins": ["prettier"],
+  "rules": {
+    "arrow-body-style": "off",
+    "consistent-return": "off",
+    "import/extensions": "off",
+    "import/order": [
+      "error",
+      {
+        "groups": ["external", "internal", "sibling"],
+        "newlines-between": "always",
+        "pathGroups": [
+          {
+            "pattern": "react",
+            "group": "external",
+            "position": "before"
+          },
+          {
+            "pattern": "@/**/*",
+            "group": "internal"
+          },
+          {
+            "pattern": "./*.module.scss",
+            "group": "sibling"
+          }
+        ]
+      }
+    ],
+    "no-nested-ternary": "warn",
+    "no-param-reassign": "warn",
+    "no-restricted-imports": [
+      "warn",
+      {
+        "patterns": ["../*"]
+      }
+    ],
+    "prefer-destructuring": "off",
+    "@typescript-eslint/lines-between-class-members": "off",
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "variable",
+        "format": ["camelCase", "PascalCase", "UPPER_CASE"],
+        "leadingUnderscore": "allow"
+      },
+      {
+        "selector": "function",
+        "format": ["camelCase", "PascalCase"]
+      },
+      {
+        "selector": "typeLike",
+        "format": ["PascalCase"]
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ],
+    "@typescript-eslint/no-use-before-define": [
+      "error",
+      { "functions": false, "classes": false, "variables": true }
+    ],
+    "import/prefer-default-export": "off",
+    "jsx-a11y/anchor-is-valid": [
+      "error",
+      { "components": [], "aspects": ["noHref", "invalidHref", "preferButton"] }
+    ],
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/label-has-associated-control": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
+    "react/function-component-definition": "off",
+    "react/jsx-fragments": "off",
+    "react/jsx-props-no-spreading": "off",
+    "react/no-children-prop": [
+      "error",
+      {
+        "allowFunctions": true
+      }
+    ],
+    "react/no-unstable-nested-components": [
+      "error",
+      {
+        "allowAsProps": true
+      }
+    ],
+    "react/prop-types": "off",
+    "react/require-default-props": "off",
+    "react/state-in-constructor": ["error", "never"]
+  }
+}

@@ -7,7 +7,7 @@ export const useClientDimensions = <T extends HTMLElement>(
   onResize?: ResizeHandlerFn
 ) => {
   const [clientHeight, setClientHeight] = useState<number>(
-    elementRef.current?.clientWidth ?? 0
+    elementRef.current?.clientHeight ?? 0
   );
   const [clientWidth, setClientWidth] = useState<number>(
     elementRef.current?.clientWidth ?? 0
@@ -18,7 +18,7 @@ export const useClientDimensions = <T extends HTMLElement>(
       setClientHeight(elementRef.current.clientHeight);
       setClientWidth(elementRef.current.clientWidth);
     }
-  }, []);
+  }, [elementRef, setClientHeight, setClientWidth]);
 
   const handleElementResize = useCallback<ResizeHandlerFn>(
     (newHeight, newWidth) => {
